@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # Copyright (c) 2014 Adafruit Industries
 # Author: Tony DiCola
 
@@ -19,9 +19,32 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+import time
 import sys
-
+import http.client as http
+import urllib
+import json
 import Adafruit_DHT
+deviceId = "DBJ2Ds6S" 
+deviceKey = "0hEznWtpY9WRdRoJ"
+def post_to_mcs(payload): 
+	headers = {"Content-type": "application/json", "deviceKey": deviceKey} 
+	not_connected = 1 
+	while (not_connected):
+		try:
+			conn = http.HTTPConnection("api.mediatek.com:80")
+			conn.connect() 
+			not_connected = 0 
+		except (http.HTTPException, socket.error) as ex: 
+			print ("Error: %s" % ex)
+			time.sleep(10)
+			 # sleep 10 seconds 
+	conn.request("POST", "/mcs/v2/devices/" + deviceId + "/datapoints", json.dumps(payload), headers) 
+	response = conn.getresponse() 
+	print( response.status, response.reason, json.dumps(payload), time.strftime("%c")) 
+	data = response.read() 
+	conn.close() 
+ 
 
 
 # Parse command line parameters.
